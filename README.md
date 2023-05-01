@@ -293,8 +293,30 @@ An [Etag](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag), could
 etag: W/"54168b8724a40803988c5d"
 ```
 
+There is also the `no-cache` header setting. This disables http-caching altogather. this is useful for development purposes, but bad for production use. In Postman this is `no-cache` is enabled by default, but you go in settings to disable it. 
+
+## Functional API
+
+There are some HTTP requests that doesn't quite fit the the GET/POST/POST/DELETE model. These are usually admin related tasks, such as "restore/reset a database", restart a VM...etc. These are performed using the `OPTIONS` method instead. 
 
 
+
+## Async APIs
+
+Some things require long lived connection, e.g.:
+
+- two way chat systems like whatsapp
+- regular polling
+
+REST isn't designed for these types of interaction, although you can try to shoehorn REST into it, but is bad practice. 
+
+Instead better to use non-Rest solutions, e.g.:
+
+- socket.io
+- gRPC
+- SignalR
+- Firebase
+- ...etc
 
 
 

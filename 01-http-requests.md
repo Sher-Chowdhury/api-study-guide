@@ -72,6 +72,8 @@ But that is considered bad practice, since the Header section's "Accept" is spec
 
 You can also define your own custom headers too. 
 
+See also - https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
+
 ### Content
 
 This can be anything, e.g. json object, html, css, javascript, .png files, .jpeg files,....etc. 
@@ -317,6 +319,30 @@ Instead better to use non-Rest solutions, e.g.:
 - SignalR
 - Firebase
 - ...etc
+
+
+
+## API Versioning
+
+Versioning can be done in variouse ways: 
+
+- via the URI, e.g. `api/v1/users`
+- via query string, e.g. `api/users?v=2.0`
+- Using a custom header, e.g. call it "x-version". 
+- Can specify this in the `Accept` header (rarely used)
+- using custom content types (rarely used)
+
+
+
+## API Authentication
+
+There are 4 main mechanisms for performing authentication:
+
+- cookies - easy to implement, but not secure, susceptible to request forgeries
+- basic auth - pass in creds via query-string or header, is secure if using ssl, but still less secure then the next two methods, since you are seding the user's creds on every http request. 
+- token - client provides initial creds, and get's a token in return. Client then attaches this token on all the subsequent http requests, until token expires. JSON Web Token (jwt) is most common type of tken used.  
+- OAuth
+
 
 
 

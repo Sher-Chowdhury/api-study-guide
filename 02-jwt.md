@@ -17,16 +17,19 @@ It lets you create a json payload that you can send to another party.
 
 A http request is made up of 4 parts:
 
+- Request type - GET,POST,PUT,DELETE...etc. 
 - path 
 - query string
-- header 
-- body
+- header - recommended place for including jwt
+- body (should not be sent in GET and DELETE requests)
 
-a jwt can be included to any of the above 4 sections. However "path" or "query string" are not good places to include jwts, because they are usually https/tls decrypted by the recipient server and stored in the server logs. 
+a jwt can be included to any of the above 4 sections. However "path" or "query string" are not good places to include jwts, because they are usually https/tls decrypted by the recipient server and stored in the server logs. so best to store it in the http's request's header, or body.
+
+However HTTP request's body is also not a good place, because, some HTTP Requests, namely "GET" and "DELETE" HTTP requests arent supposed to include a body section.
+
+Hence the best place to supply the jwt, is in the HTTP request's header section. 
 
 
-
-Without the fear of anyone tampering with it.
 
 Jwt proves a trusted party created the token.
 
@@ -114,6 +117,39 @@ jots are better than using creds, because:
 3. small+compact, and cuts down the HTTP-request's body encryption+decryption overhead, when compared to just using 
 
 This is described in this video - https://app.pluralsight.com/course-player?clipId=37efbe7f-ce27-4e6e-8437-7c34cd190ca7
+
+
+
+
+
+A http request's header section, is a good place to send your jwt, using the "Authorisation" setting - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization:
+
+```
+Authorization: <authentication-scheme> <credentials>  
+```
+
+there are are few authentication schemes available, but the one to use for jwt is "bearer" - https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#authentication_schemes
+
+The protected resource (e.g. twitter.com) will return a HTTP response. This response is made up of 3 parts:
+
+- status code
+- header 
+- content
+
+
+
+
+The status code part can be "401 Unauthorised" error, if:
+
+1. Authorization setting is missing from the http request's header section. 
+2. The authentication scheme is not "bearer"
+3. the supplied jwt is invalid
+
+When this happens the HTTP response object usually includes the header claim "WWW-Authenticate" setting - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/WWW-Authenticate which gives some on how you can successful authenticate, e.g. which authentication-scheme it can accept. It also given reason why your authentication failed, e.g. token has expired.  
+
+The "WWW-Authenticate" can also specify a "Realm" url, which is a url for requesting a token (authorization server). 
+
+you might also get "403 forbidden", i.e. jwt is valued, but don't have permission, i.e. authentication was successful, but authorization failed.
 
 
 

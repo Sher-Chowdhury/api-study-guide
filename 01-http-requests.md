@@ -101,7 +101,7 @@ Similar to Request headers, but wanted to point out some common ones:
 
 ### Content 
 
-same as request's coThis can be anything, e.g. json object, html, css, javascript, .png files, .jpeg files,....etc. 
+Same as request's content. This can be anything, e.g. json object, html, css, javascript, .png files, .jpeg files,....etc. 
 ntent section. 
 
 Note, when you submit a POST to create a resource, then the HTTP response's content should return the entire resource, including generated info such as unique ID, createdAt date...etc. 

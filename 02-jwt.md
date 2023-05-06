@@ -7,9 +7,8 @@ Jwt token is a really long string of characters. This string is made up of three
 
 
 
-The first and second segments starts with the characters "eyj".
+The first and second segments starts with the characters "eyj". The first and 2nd segments are actually json strings that are base64 encoded (but they are not encrypted, so anyone can view it's content be base64 decoding it)
 
-The token is actually a json string that's base64 encoded.
 
 Json web token, aka Jwt, is a standard security token format.
 
@@ -18,12 +17,12 @@ It lets you create a json payload that you can send to another party.
 
 A http request is made up of 4 parts:
 
-- path
+- path 
 - query string
 - header 
 - body
 
-a jwt can be included to any of the above 4 sections. However "path" or "query string" are not good place to include jwts, because they are usually https/tls decrypted by the recipient server and stored in the server logs. 
+a jwt can be included to any of the above 4 sections. However "path" or "query string" are not good places to include jwts, because they are usually https/tls decrypted by the recipient server and stored in the server logs. 
 
 
 
@@ -56,9 +55,57 @@ jwt was designed to
 
 Here are the main steps To understand how jwt works (everything is over tls so that it eliminates man-in-the-middle attacks). 
 
-1. User supplies creds (e.g. username/password or apikey) in initial HTTP-request to the server 
-2. Server validates creds are valid, and generates jot and sends it back to the user in the form of a HTTP-response
-3. User attaches token as a header setting on all subsequent http-requests until jot expires, then goes back to step one. 
+### Oauth2 exmaple scenario
+
+Let's say you want medium.com to auto-tweet on twitter.com on your behalf, whenever you publish a new article. For that to work, you'll want
+twitter.com to trust requests coming from medium.com, but you don't want to give medium.com your twitter username+password. Instead let's assume medium.com and twitter.com supports Oauth2. So how would this work? Here we have 4 players:
+
+1. User, with a web browser that is already logged into medium.com and twitter.com
+2. twitter's authorisation server. 
+3. medium.com (client applicatoin)
+4. twitter.com (protected resource)
+
+Here's the steps that takes place:
+
+1. user go medium.com (client application) setting's page and clicks on "connect to twitter" button
+2. medium.com redirects browser to user's twitter.com's authorisation server. 
+3. authorisation server ask user if it wants to allow medium.com to send tweets on user's behave. 
+4. user clicks on "allow"
+5. Authorisatin server returns an "Authorisation Grant" back to the web browser. 
+6. Web browser forwards the "Authorisation Grant" to medium.com (client application)
+7. medium.com forwards "Authorisation Grant" to the authorisation server's token-request endpoint, along with some metadata. 
+8. authorisation server returns an jwt back to medium.com
+9. medium.com attach jwt to http requests it makes to main twitter.com 
+10. twitter.com attempts to decrypt the third  segment of the jwt (signature), using the tls certificate that it has received from the authorisation certificate.
+11. If successful, then it means that the token was issued by a trusted authorisation server (i.e. twitter's own authorisation server)
+12. the decrypted signature contains to cheksum values of the base64 encoded strings of the first and seconnd segment's json strings. e.g. 
+
+```
+cat segment1.json | base64 | shasum -a 256
+c6d34339b318c6ed020b596621c6fd4c7ae747e8ef4ca01ca36ec395c7e5c77e
+```
+
+Also see - https://osxdaily.com/2021/12/17/check-sha256-hash-mac/
+
+13. it checks that the two checksum hashes matches with the 2 segments, and if so, then it proves that the first and second segments haven't been tampered with. once that's done it proceeds with the request. 
+
+See example - https://jwt.io/
+
+Note, all interactions above are occuring over https, so that the jwt doesn't get intercepted and falls into the wrong hand. 
+
+
+As a minimum, the second segment (payload) must contain the following "claims":
+
+1. user's userid
+2. What permissions were granted
+3. token's expiration date
+
+
+
+
+
+
+
 
 jots are better than using creds, because:
 
